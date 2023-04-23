@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
 const options = {
-     useNewUrlParser: true,
-     useUnifiedTopology: true,
-     serverSelectionTimeoutMS: 5000 // erhöhe den Timeout auf 5 Sekunden
-   };
-   
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000 // erhöhe den Timeout auf 5 Sekunden
+};
+
 // Datenbankverbindung mit Mongoose herstellen
-mongoose.connect('mongodb://127.0.0.1:27017/restaurant_db', { useNewUrlParser: true, useUnifiedTopology: true, serverSelectionTimeoutMS: 5000  })
+mongoose.connect('mongodb://127.0.0.1:27017/restaurant_db', options)
   .then(() => console.log('Datenbankverbindung erfolgreich!'))
   .catch((err) => console.error(err));
 
@@ -17,7 +17,10 @@ mongoose.connect('mongodb://127.0.0.1:27017/restaurant_db', { useNewUrlParser: t
 const restaurantSchema = new mongoose.Schema({
   name: String,
   address: String,
-  description: String
+  description: String,
+  owner_firstname: String,
+  owner_lastname: String,
+  phone: String
 });
 
 const Restaurant = mongoose.model('Restaurant', restaurantSchema);
@@ -50,7 +53,10 @@ app.post('/restaurants', async (req, res) => {
   const restaurant = new Restaurant({
     name: req.body.name,
     address: req.body.address,
-    description: req.body.description
+    description: req.body.description,
+    owner_firstname: req.body.owner_firstname,
+    owner_lastname: req.body.owner_lastname,
+    phone: req.body.phone
   });
   await restaurant.save();
   res.send(restaurant);
@@ -60,11 +66,12 @@ app.post('/restaurants', async (req, res) => {
 app.put('/restaurants/:id', async (req, res) => {
   const restaurant = await Restaurant.findById(req.params.id);
   restaurant.name = req.body.name;
+  restaurant.owner.firstName = req.body.ownerFirstName;
+  restaurant.owner.lastName = req.body.ownerLastName;
+  restaurant.phoneNumber = req.body.phoneNumber;
   restaurant.address = req.body.address;
-  restaurant.description = req.body.description;
   await restaurant.save();
   res.send(restaurant);
-  console.log("PUT !!");
 });
 
 app.delete('/restaurants/:id', async (req, res) => {

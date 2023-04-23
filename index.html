@@ -1,60 +1,103 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <title>Restaurantverwaltung</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Restaurant App</title>
+  </head>
+  <body>
+    <h1>Restaurant App</h1>
+    <form>
+      <label for="owner_firstname">Vorname des Inhabers:</label>
+      <input type="text" id="owner_firstname" name="owner_firstname" />
+      <br />
+
+      <label for="owner_lastname">Nachname des Inhabers:</label>
+      <input type="text" id="owner_lastname" name="owner_lastname" />
+      <br />
+
+      <label for="restaurant_name">Name des Restaurants:</label>
+      <input type="text" id="restaurant_name" name="name" />
+      <br />
+
+      <label for="restaurant_phone">Telefonnummer des Restaurants:</label>
+      <input type="text" id="restaurant_phone" name="phone" />
+      <br />
+
+      <label for="restaurant_address">Adresse des Restaurants:</label>
+      <input type="text" id="restaurant_address" name="address" />
+      <br />
+
+      <button id="addRestaurant">Add Restaurant</button>
+    </form>
+
+    <h2>Restaurants:</h2>
+    <ul id="restaurantList"></ul>
+
     <script>
-        $(document).ready(function() {
-            // GET Restaurants
-            $.ajax({
-                type: "GET",
-                url: "http://localhost:3000/restaurants",
-                success: function(data) {
-                    console.log(data);
-                },
-                error: function(xhr, status, error) {
-                    console.error(status + ": " + error);
-                }
-            });
+      const restaurantList = document.getElementById("restaurantList");
 
-            // POST Restaurant
-            var restaurantData = {
-                "name": "Restaurant XYZ",
-                "address": "Musterstraße 1, 12345 Musterstadt",
-                "phone": "+49 123 456789",
-                "menu": [
-                    {
-                        "name": "Pizza Margherita",
-                        "price": 6.50
-                    },
-                    {
-                        "name": "Pasta Carbonara",
-                        "price": 8.00
-                    }
-                ],
-                "paymentMethods": ["Cash", "Credit Card"]
-            };
+      function createRestaurantItem(restaurant) {
+        const li = document.createElement("li");
+        li.textContent =
+          restaurant.ownerFirstName +
+          " " +
+          restaurant.ownerLastName +
+          " - " +
+          restaurant.restaurantName +
+          " - " +
+          restaurant.phone +
+          " - " +
+          restaurant.address;
+        return li;
+      }
 
-            $.ajax({
-                type: "POST",
-                url: "http://localhost:3000/restaurants",
-                xhrFields: {
-                    withCredentials: true
-                },
-                data: restaurantData,
-                success: function(data) {
-                    console.log(data);
-                },
-                error: function(xhr, status, error) {
-                    console.error(status + ": " + error);
-                }
-            });
+      function displayRestaurants(restaurants) {
+        restaurantList.innerHTML = "";
+        restaurants.forEach((restaurant) => {
+          const li = createRestaurantItem(restaurant);
+          restaurantList.appendChild(li);
         });
-        
+      }
+
+      function fetchRestaurants() {
+        fetch("http://localhost:3000/restaurants")
+          .then((response) => response.json())
+          .then((data) => displayRestaurants(data))
+          .catch((error) => console.error(error));
+      }
+
+      function addRestaurant(event) {
+        event.preventDefault();
+
+        const ownerFirstName = document.getElementById("owner_firstname").value;
+        const ownerLastName = document.getElementById("owner_lastname").value;
+        const restaurantName = document.getElementById("restaurant_name").value;
+        const phone = document.getElementById("restaurant_phone").value;
+        const address = document.getElementById("restaurant_address").value;
+
+        fetch("http://localhost:3000/restaurants", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ownerFirstName,
+            ownerLastName,
+            restaurantName,
+            phone,
+            address,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+            fetchRestaurants();
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      document.getElementById("addRestaurant").addEventListener("click", addRestaurant);
+      fetchRestaurants();
     </script>
-</head>
-<body>
-    <h1>Restaurantverwaltung</h1>
-</body>
+  </body>
 </html>
