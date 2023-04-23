@@ -1,83 +1,76 @@
 const express = require('express');
-const bodyParser= require('body-parser');
-const MongoClient = require('mongodb').MongoClient;
-const app = express();
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(express.static('public'));
+const options = {
+     useNewUrlParser: true,
+     useUnifiedTopology: true,
+     serverSelectionTimeoutMS: 5000 // erhöhe den Timeout auf 5 Sekunden
+   };
+   
+// Datenbankverbindung mit Mongoose herstellen
+mongoose.connect('mongodb://127.0.0.1:27017/restaurant_db', { useNewUrlParser: true, useUnifiedTopology: true, serverSelectionTimeoutMS: 5000  })
+  .then(() => console.log('Datenbankverbindung erfolgreich!'))
+  .catch((err) => console.error(err));
+
+// Restaurant-Schema und Model erstellen
+const restaurantSchema = new mongoose.Schema({
+  name: String,
+  address: String,
+  description: String
+});
+
+const Restaurant = mongoose.model('Restaurant', restaurantSchema);
+
+// Express-App erstellen
+const app = express();
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const port = 3000;
-
-const url = 'mongodb://localhost/';
-const dbName = 'restaurantDB';
-const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
-
-client.connect((err) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log('Connected to MongoDB server');
-
-  const db = client.db(dbName);
-  const collection = db.collection('restaurants');
-
-  app.post('/restaurants', (req, res) => {
-    collection.insertOne(req.body, (err, result) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send({error: 'Error inserting document into collection'});
-        return;
-      }
-      res.send(result.ops[0]);
-    });
-  });
-
-  app.get('/restaurants', (req, res) => {
-    collection.find({}).toArray((err, result) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send({error: 'Error getting documents from collection'});
-        return;
-      }
-      res.send(result);
-    });
-  });
-
-  app.put('/restaurants/:id', (req, res) => {
-    const id = req.params.id;
-    const data = req.body;
-
-    collection.updateOne({_id: ObjectId(id)}, {$set: data}, (err, result) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send({error: 'Error updating document in collection'});
-        return;
-      }
-      res.send(result);
-    });
-  });
-
-  app.delete('/restaurants/:id', (req, res) => {
-    const id = req.params.id;
-
-    collection.deleteOne({_id: ObjectId(id)}, (err, result) => {
-      if (err) {
-        console.error(err);
-        res.status(500).send({error: 'Error deleting document from collection'});
-        return;
-      }
-      res.send(result);
-    });
-  });
-
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
+// CORS-Konfiguration
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
 });
 
-client.on('timeout', () => {
-  console.error('MongoDB timeout error');
-  client.close();
+// RESTful API definieren
+app.get('/restaurants', async (req, res) => {
+  const restaurants = await Restaurant.find();
+  res.send(restaurants);
 });
+
+app.get('/restaurants/:id', async (req, res) => {
+  const restaurant = await Restaurant.findById(req.params.id);
+  res.send(restaurant);
+});
+
+app.post('/restaurants', async (req, res) => {
+  const restaurant = new Restaurant({
+    name: req.body.name,
+    address: req.body.address,
+    description: req.body.description
+  });
+  await restaurant.save();
+  res.send(restaurant);
+  console.log("POSTED !!");
+});
+
+app.put('/restaurants/:id', async (req, res) => {
+  const restaurant = await Restaurant.findById(req.params.id);
+  restaurant.name = req.body.name;
+  restaurant.address = req.body.address;
+  restaurant.description = req.body.description;
+  await restaurant.save();
+  res.send(restaurant);
+  console.log("PUT !!");
+});
+
+app.delete('/restaurants/:id', async (req, res) => {
+  await Restaurant.findByIdAndDelete(req.params.id);
+  res.send('Restaurant erfolgreich gelöscht');
+});
+
+// Server starten
+app.listen(3000, () => console.log('Server läuft auf Port 3000...'));
