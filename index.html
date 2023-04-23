@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Restaurantverwaltung</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // GET Restaurants
+            $.ajax({
+                type: "GET",
+                url: "http://localhost:3000/restaurants",
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function(xhr, status, error) {
+                    console.error(status + ": " + error);
+                }
+            });
+
+            // POST Restaurant
+            var restaurantData = {
+                "name": "Restaurant XYZ",
+                "address": "Musterstraße 1, 12345 Musterstadt",
+                "phone": "+49 123 456789",
+                "menu": [
+                    {
+                        "name": "Pizza Margherita",
+                        "price": 6.50
+                    },
+                    {
+                        "name": "Pasta Carbonara",
+                        "price": 8.00
+                    }
+                ],
+                "paymentMethods": ["Cash", "Credit Card"]
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:3000/restaurants",
+                data: restaurantData,
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function(xhr, status, error) {
+                    console.error(status + ": " + error);
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Restaurantverwaltung</h1>
+</body>
+</html>
