@@ -39,6 +39,9 @@
             $.ajax({
                 type: "POST",
                 url: "http://localhost:3000/restaurants",
+                xhrFields: {
+                    withCredentials: true
+                },
                 data: restaurantData,
                 success: function(data) {
                     console.log(data);
@@ -48,6 +51,7 @@
                 }
             });
         });
+        
     </script>
 </head>
 <body>
