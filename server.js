@@ -15,9 +15,8 @@ mongoose.connect('mongodb://127.0.0.1:27017/restaurant_db', options)
 
 // Restaurant-Schema und Model erstellen
 const restaurantSchema = new mongoose.Schema({
-  name: String,
+  restaurant_name: String,
   address: String,
-  description: String,
   owner_firstname: String,
   owner_lastname: String,
   phone: String
@@ -35,6 +34,7 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "http://127.0.0.1:5500");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
   next();
 });
 
@@ -51,27 +51,26 @@ app.get('/restaurants/:id', async (req, res) => {
 
 app.post('/restaurants', async (req, res) => {
   const restaurant = new Restaurant({
-    name: req.body.name,
+    owner_firstname: req.body.ownerFirstName,
+    owner_lastname: req.body.ownerLastName,
+    restaurant_name: req.body.restaurantName,
     address: req.body.address,
-    description: req.body.description,
-    owner_firstname: req.body.owner_firstname,
-    owner_lastname: req.body.owner_lastname,
     phone: req.body.phone
   });
   await restaurant.save();
   res.send(restaurant);
-  console.log("POSTED !!");
+  console.log(restaurant);
 });
 
 app.put('/restaurants/:id', async (req, res) => {
   const restaurant = await Restaurant.findById(req.params.id);
-  restaurant.name = req.body.name;
-  restaurant.owner.firstName = req.body.ownerFirstName;
-  restaurant.owner.lastName = req.body.ownerLastName;
-  restaurant.phoneNumber = req.body.phoneNumber;
+  restaurant.restaurant_name = req.body.restaurant_name;
+  restaurant.owner_firstname = req.body.owner_firstname;
+  restaurant.owner_lastname = req.body.owner_lastname;
+  restaurant.phone = req.body.phone;
   restaurant.address = req.body.address;
   await restaurant.save();
-  res.send(restaurant);
+  //res.send(restaurant);
 });
 
 app.delete('/restaurants/:id', async (req, res) => {

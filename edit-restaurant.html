@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Restaurant bearbeiten</title>
+  </head>
+  <body>
+    <h1>Restaurant bearbeiten</h1>
+    <form id="editForm">
+      <label for="restaurantName">Name des Restaurants:</label>
+      <input type="text" id="restaurantName" name="restaurantName" /><br />
+
+      <label for="ownerFirstName">Vorname des Besitzers:</label>
+      <input type="text" id="ownerFirstName" name="ownerFirstName" /><br />
+
+      <label for="ownerLastName">Nachname des Besitzers:</label>
+      <input type="text" id="ownerLastName" name="ownerLastName" /><br />
+
+      <label for="phone">Telefonnummer:</label>
+      <input type="text" id="phone" name="phone" /><br />
+
+      <label for="address">Adresse:</label>
+      <input type="text" id="address" name="address" /><br />
+
+      <input type="hidden" id="restaurantId" name="restaurantId" />
+
+      <h2>Gerichte</h2>
+      <div id="dishesList"></div>
+      <button type="button" id="addDishBtn">Gericht hinzufügen</button>
+
+      <button type="submit" id="submitBtn">Übernehmen</button>
+    </form>
+
+    <div id="editDishModal" style="display: none;">
+      <h2>Gericht bearbeiten</h2>
+      <form id="editDishForm">
+        <label for="dishName">Name des Gerichts:</label>
+        <input type="text" id="dishName" name="dishName" /><br />
+
+        <label for="dishPrice">Preis:</label>
+        <input type="number" step="0.01" id="dishPrice" name="dishPrice" /><br />
+
+        <label for="dishExtras">Extras:</label>
+        <textarea id="dishExtras" name="dishExtras"></textarea><br />
+
+        <input type="hidden" id="dishId" name="dishId" />
+
+        <button type="submit">Speichern</button>
+        <button type="button" id="deleteDishBtn">Löschen</button>
+        <button type="button" id="cancelEditDishBtn">Abbrechen</button>
+      </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/js/editRestaurant.js"></script>
+  </body>
+</html>

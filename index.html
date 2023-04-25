@@ -36,22 +36,48 @@
     <script>
       const restaurantList = document.getElementById("restaurantList");
 
+      // Weiterleiten zur Bearbeitungsseite
+      function editRestaurant(id) {
+        window.location.href = "/edit-restaurant.html?id=" + id;
+      }
+
+      // Einzelnes Restaurantitem-anzeigen
       function createRestaurantItem(restaurant) {
-        const li = document.createElement("li");
-        li.textContent =
-          restaurant.ownerFirstName +
-          " " +
-          restaurant.ownerLastName +
-          " - " +
-          restaurant.restaurantName +
-          " - " +
-          restaurant.phone +
-          " - " +
-          restaurant.address;
+      const li = document.createElement("li");
+      li.textContent =
+        restaurant.owner_firstname +
+        " - " +
+        restaurant.owner_lastname +
+        " - " +
+        restaurant.restaurant_name +
+        " - " +
+        restaurant.phone +
+        " - " +
+        restaurant.address;
+
+        const editButton = document.createElement("button");
+        editButton.textContent = "Bearbeiten";
+        editButton.addEventListener("click", () => {
+          editRestaurant(restaurant._id);
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => {
+          deleteRestaurant(restaurant._id);
+          console.log("Deleting :" + restaurant._id);
+        });
+
+        li.appendChild(editButton);
+        li.appendChild(deleteButton);
+
         return li;
       }
 
+
+      // Komplette restaurantliste anzeigen
       function displayRestaurants(restaurants) {
+        console.log(restaurants);
         restaurantList.innerHTML = "";
         restaurants.forEach((restaurant) => {
           const li = createRestaurantItem(restaurant);
@@ -59,6 +85,9 @@
         });
       }
 
+      // ---------------------------------------
+      // Restaurantliste von Datenbank lesen
+      // ---------------------------------------
       function fetchRestaurants() {
         fetch("http://localhost:3000/restaurants")
           .then((response) => response.json())
@@ -66,6 +95,9 @@
           .catch((error) => console.error(error));
       }
 
+      // ---------------------------------------
+      // Restaurant hinzufügen (wird nach Button-click ausgeführt)
+      // ---------------------------------------
       function addRestaurant(event) {
         event.preventDefault();
 
@@ -84,13 +116,30 @@
             ownerFirstName,
             ownerLastName,
             restaurantName,
-            phone,
             address,
+            phone
           }),
         })
           .then((response) => response.json())
           .then((data) => {
             console.log("Success:", data);
+            fetchRestaurants();
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      // ---------------------------------------
+      // Restaurant löschen
+      // ---------------------------------------
+      function deleteRestaurant(id) {
+        fetch(`http://localhost:3000/restaurants/${id}`, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            console.log("Restaurant successfully deleted!");
             fetchRestaurants();
           })
           .catch((error) => console.error("Error:", error));
